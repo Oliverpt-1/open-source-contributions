@@ -1,28 +1,75 @@
 # open-source-contributions
 
-## Contribution to GoodDollar SDK
+# Contribution to GoodDollar SDK
 
-**#Commit:** [`7f1d8c8`](https://github.com/GoodDollar/GoodSDKs/commit/7f1d8c8f9698a84ef1a000f38c2d7818f982c299)
+**Commit:** [`7f1d8c8`](https://github.com/GoodDollar/GoodSDKs/commit/7f1d8c8f9698a84ef1a000f38c2d7818f982c299)  
+**File modified:** `citizen-sdk/src/sdks/viem-claim-sdk.ts`  
+**Lines changed:** +66 / -7
 
-### Problem Addressed
+## Overview
 
-The `claim` method did not call the `UBIPool.canClaim()` function before submitting a transaction. This meant that users could send a claim transaction that did nothing, unnecessarily consuming gas. It also created ambiguity for developers integrating the SDK, as they had no clear way to determine the wallet’s current claim status.
+This contribution improves the logic around claiming UBI in the GoodDollar SDK by introducing:
 
-### Solution
+- A pre-claim eligibility check
+- A unified claim status method
+- A more intelligent `nextClaimTime` function
 
-A single method was added to determine the full claim status for a given wallet. This enables developers to make better decisions in their app logic and UI presentation.
+These changes prevent unnecessary or no-op claim transactions and help developers handle user states in a predictable and gas-efficient way.
 
-### Claim Status Conditions
+---
 
-The method now handles the following conditions:
+## Key Changes
 
-1. **Not whitelisted**  
-   - The wallet is not yet verified. Developers can still show the claim button, but should redirect the user to a verification flow or display an appropriate message.
+### 1. **Added `getWalletClaimStatus()` Method**
 
-2. **Can claim (entitlement > 0)**  
-   - The user is eligible to claim. Developers should display the claim button.
+Introduced a new method that returns a complete status object (`WalletClaimStatus`) for a given wallet address, including:
 
-3. **Already claimed**  
-   - The user has claimed their entitlement for the current period. Developers can show a timer or message indicating when the next claim will be available.
+- `status`: One of `"not_whitelisted"`, `"can_claim"`, or `"already_claimed"`
+- `entitlement`: The current UBI entitlement (as a `bigint`)
+- `nextClaimTime` (optional): When the user can next claim (only returned if status is `already_claimed`)
 
-In addition, if `checkEntitlement > 0`, the method returns `nextClaimTime = 0` to simplify front-end logic for identifying wallets that are immediately eligible to claim.
+This provides developers a single entry point to determine claim status and update UI/UX accordingly.
+
+### 2. **Updated `claim()` Logic**
+
+Previously, the `claim()` method did not check whether the user had any claimable UBI, which could lead to wasted gas. Now it:
+
+- Verifies that the user is whitelisted
+- Calls `checkEntitlement()` before proceeding
+- Aborts early if `entitlement === 0n` with a descriptive error
+
+This avoids sending claim transactions when nothing can be claimed.
+
+### 3. **Improved `nextClaimTime()` Handling**
+
+The `nextClaimTime()` method now:
+
+- Checks if `entitlement > 0n` and returns `Date(0)` (epoch) if the user can already claim
+- Otherwise calculates and returns the actual next eligible claim date
+
+This makes the method safer and aligns it with real-time entitlement logic.
+
+---
+
+## Developer UX Impact
+
+The updated SDK now clearly supports the following scenarios:
+
+1. **Not Whitelisted**  
+   - Return: `status = "not_whitelisted"`  
+   - Developer should still show a claim button but redirect to verification flow or display a message.
+
+2. **Can Claim**  
+   - Return: `status = "can_claim", entitlement > 0`  
+   - Developer shows claim button and initiates claim on click.
+
+3. **Already Claimed**  
+   - Return: `status = "already_claimed"`, `entitlement = 0`, `nextClaimTime` populated  
+   - Developer may show a countdown, message, or disable the claim action until the next window.
+
+---
+
+## Summary
+
+These changes improve safety, save gas, and enhance the integration experience for developers using the SDK. Instead of scattered checks, all key logic is consolidated into intuitive methods that reflect real on-chain claimability.
+.
