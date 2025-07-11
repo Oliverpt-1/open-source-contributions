@@ -1,6 +1,6 @@
 # open-source-contributions
 
-# Contribution to GoodDollar SDK
+## Contribution to GoodDollar SDK
 
 **Commit:** [`7f1d8c8`](https://github.com/GoodDollar/GoodSDKs/commit/7f1d8c8f9698a84ef1a000f38c2d7818f982c299)  
 **File modified:** `citizen-sdk/src/sdks/viem-claim-sdk.ts`  
