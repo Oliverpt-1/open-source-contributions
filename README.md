@@ -50,26 +50,3 @@ The `nextClaimTime()` method now:
 This makes the method safer and aligns it with real-time entitlement logic.
 
 ---
-
-## Developer UX Impact
-
-The updated SDK now clearly supports the following scenarios:
-
-1. **Not Whitelisted**  
-   - Return: `status = "not_whitelisted"`  
-   - Developer should still show a claim button but redirect to verification flow or display a message.
-
-2. **Can Claim**  
-   - Return: `status = "can_claim", entitlement > 0`  
-   - Developer shows claim button and initiates claim on click.
-
-3. **Already Claimed**  
-   - Return: `status = "already_claimed"`, `entitlement = 0`, `nextClaimTime` populated  
-   - Developer may show a countdown, message, or disable the claim action until the next window.
-
----
-
-## Summary
-
-These changes improve safety, save gas, and enhance the integration experience for developers using the SDK. Instead of scattered checks, all key logic is consolidated into intuitive methods that reflect real on-chain claimability.
-.
