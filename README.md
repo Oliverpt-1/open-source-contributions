@@ -1,14 +1,14 @@
 # open-source-contributions
 
-# Contribution to GoodDollar SDK
+## Contribution to GoodDollar SDK
 
-**Commit:** [`7f1d8c8`](https://github.com/GoodDollar/GoodSDKs/commit/7f1d8c8f9698a84ef1a000f38c2d7818f982c299)
+**#Commit:** [`7f1d8c8`](https://github.com/GoodDollar/GoodSDKs/commit/7f1d8c8f9698a84ef1a000f38c2d7818f982c299)
 
-## Problem Addressed
+### Problem Addressed
 
 The `claim` method did not call the `UBIPool.canClaim()` function before submitting a transaction. This meant that users could send a claim transaction that did nothing, unnecessarily consuming gas. It also created ambiguity for developers integrating the SDK, as they had no clear way to determine the wallet’s current claim status.
 
-## Solution
+### Solution
 
 A single method was added to determine the full claim status for a given wallet. This enables developers to make better decisions in their app logic and UI presentation.
 
